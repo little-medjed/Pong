@@ -1,32 +1,47 @@
+--Chamando a biblioteca lovebpm, responsavel pelo som
+package.path = package.path .. ";/pong/lovebpm.lua"
+local lovebpm = require "lovebpm"
+
+
 --A função love.load() carrega os objetos usados no jogo
 function love.load()
   --Declaração do objeto Player 1 e seus atributos
   p1 = {}
   p1.x = 50
   p1.y = 225
-  p1.largura = 20
-  p1.altura = 100
+  p1.largura = 15
+  p1.altura = 75
   p1.pontos = 0
 
   --Declaração do objeto Player 2 e seus atributos
   p2 = {}
   p2.x = 720
   p2.y = 225
-  p2.largura = 20
-  p2.altura = 100
+  p2.largura = 15
+  p2.altura = 75
   p2.pontos = 0
 
   --Declaração do objeto Quadrado e seus atributos
   quad = {}
   quad.x = 380
   quad.y = 280
-  quad.x_acel = 4
-  quad.y_acel = 4
-  quad.largura = 25
-  quad.altura = 25
+  quad.x_acel = 3
+  quad.y_acel = 3
+  quad.largura = 20
+  quad.altura = 20
 
  --Declaração da fonte
   font = love.graphics.newFont(25)
+
+  --Declaraçãodos objetos de som
+  som_hitbox = lovebpm.newTrack()
+  som_ponto = lovebpm.newTrack()
+
+  som_hitbox:load("sound/03.wav")
+  som_hitbox:setBPM(127)
+
+  som_ponto:load('sound/06.wav')
+  som_ponto:setBPM(127)
 end
 
 --A função love.update() atualiza as modificações do jogo em execução
@@ -67,6 +82,7 @@ function love.update()
     --Colisão entre as paredes do eixo Y e Quadrado
     --Quando o Quadrado acerta em cima ou em baixo inverta o valor da aceleração Y
     if quad.y < 27 or quad.y > 575 then
+      som_hitbox:play()
       quad.y_acel = quad.y_acel * -1
     end
 
@@ -77,6 +93,7 @@ function love.update()
        quad.x + quad.x_acel <= p1.x + p1.largura and
        quad.y + quad.altura >= p1.y and
        quad.y <= p1.y + p1.altura then
+          som_hitbox:play()
           quad.x_acel = quad.x_acel * -1
     end
     --Esse if checa pra onde o Quadrado se move no eixo Y,
@@ -85,6 +102,7 @@ function love.update()
        quad.x <= p1.x + p1.largura and
        quad.y + quad.altura + quad.y_acel >= p1.y and
        quad.y + quad.y_acel <= p1.y + p1.altura then
+          som_hitbox:play()
           quad.y_acel = quad.y_acel * -1
     end
 
@@ -95,14 +113,16 @@ function love.update()
        quad.x + quad.x_acel <= p2.x + p2.largura and
        quad.y + quad.altura >= p2.y and
        quad.y <= p2.y + p2.altura then
+          som_hitbox:play()
           quad.x_acel = quad.x_acel * -1
     end
     --Esse if checa pra onde o Quadrado se move no eixo Y,
-    --se ele estiver proximo do centro da barra do P2 a aceleração sera invertida 
+    --se ele estiver proximo do centro da barra do P2 a aceleração sera invertida
     if quad.x + quad.largura >= p2.x and
        quad.x <= p2.x + p2.largura and
        quad.y + quad.altura + quad.y_acel >= p2.y and
        quad.y + quad.y_acel <= p2.y + p2.altura then
+          som_hitbox:play()
           quad.y_acel = quad.y_acel * -1
     end
 
@@ -110,15 +130,21 @@ function love.update()
     --Quando o Quadrado atravessar um lado da tela (eixo X),
     --marque um ponto pro player do lado oposto e retorne pro centro da tela
     if quad.x <= 0 then
+        som_ponto:play()
         p2.pontos = p2.pontos + 1
         quad.x = 380
         quad.y = 280
       end
     if quad.x >= 800 then
+        som_ponto:play()
         p1.pontos = p1.pontos + 1
         quad.x = 380
         quad.y = 280
       end
+
+      --Atualiza os sons
+      som_hitbox:update()
+      som_ponto:update()
 end
 
 --A função love.draw() carrega a parte grafica do jogo
@@ -138,4 +164,9 @@ function love.draw()
  --A função love.graphics.print imprime textos na tela, os parametros são o texto e o seu tamanho
   love.graphics.print("P1: "..p1.pontos, 75)
   love.graphics.print("P2: "..p2.pontos, 655)
+
+
+
+
+  --love.graphics.print(package.path, 10, 400)
 end
