@@ -33,7 +33,7 @@ function love.load()
  --Declaração da fonte
   font = love.graphics.newFont(25)
 
-  --Declaraçãodos objetos de som
+  --Declaração dos objetos de som
   som_hitbox = lovebpm.newTrack()
   som_ponto = lovebpm.newTrack()
 
